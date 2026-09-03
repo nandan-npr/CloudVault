@@ -5,20 +5,36 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "lint": "eslint .",
+    "test": "node --test test/authValidation.test.js test/contract.test.js test/e2e-workflow.test.js test/fileStorage.test.js test/fileValidation.test.js"
   },
   "keywords": [],
   "author": "Nandan Pruthvi Raj R",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.11.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.6.2",
+    "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^8.5.1"
+    "mongoose": "^8.5.1",
+    "morgan": "^1.11.0",
+    "multer": "^2.2.0",
+    "nodemailer": "^9.0.4",
+    "pino": "^10.3.1",
+    "resend": "^6.25.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.0",
+    "globals": "^17.9.0",
     "nodemon": "^3.1.4"
   }
 }

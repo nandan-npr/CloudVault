@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Sparkles, UserRoundPlus } from "lucide-react";
@@ -25,8 +25,14 @@ function Register() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (formData.password.length < 6) {
-      toast.error("Password should be at least 6 characters long.");
+    if (
+      formData.password.length < 12 ||
+      !/[a-z]/.test(formData.password) ||
+      !/[A-Z]/.test(formData.password) ||
+      !/\d/.test(formData.password) ||
+      !/[^A-Za-z0-9]/.test(formData.password)
+    ) {
+      toast.error("Password must be 12+ characters with upper/lowercase, a number, and a symbol.");
       return;
     }
 
@@ -41,12 +47,11 @@ function Register() {
         fullName: formData.fullName.trim(),
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
+        confirmPassword: formData.confirmPassword,
       });
 
-      const { token, user } = response.data;
-      setAuthToken(token);
-      localStorage.setItem("cloudvault_token", token);
-      localStorage.setItem("cloudvault_user", JSON.stringify(user));
+      const { accessToken } = response.data;
+      setAuthToken(accessToken);
 
       toast.success("Account created successfully.");
       navigate("/dashboard");
@@ -60,7 +65,12 @@ function Register() {
   return (
     <main className="min-h-screen bg-[#faf7f2] px-6 py-10 text-[#1f1a17] sm:px-8 lg:px-10">
       <div className="mx-auto flex max-w-7xl flex-col gap-8 rounded-[36px] border border-stone-200 bg-white/80 p-4 shadow-[0_20px_80px_rgba(45,32,20,0.05)] backdrop-blur lg:flex-row lg:p-8">
-        <motion.section initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="flex-1 rounded-[28px] bg-[#f8f3ea] p-8 lg:p-10">
+        <motion.section
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex-1 rounded-[28px] bg-[#f8f3ea] p-8 lg:p-10"
+        >
           <div className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white/80 px-4 py-2 text-sm font-medium text-stone-700">
             <Sparkles size={16} className="text-[#8c3d3d]" />
             Start with a calmer way to manage files
@@ -71,23 +81,31 @@ function Register() {
           </h1>
 
           <p className="mt-5 max-w-xl text-lg leading-8 text-stone-600">
-            CloudVault helps you keep important documents organized, easy to share, and ready whenever you need them.
+            CloudVault helps you keep important documents organized, easy to share, and ready
+            whenever you need them.
           </p>
 
           <div className="mt-8 rounded-[24px] border border-stone-200 bg-white/80 p-5 text-sm text-stone-700">
             <p className="font-semibold text-stone-900">What you get</p>
             <ul className="mt-3 space-y-2">
-              <li>• One workspace for your most important files</li>
-              <li>• Clear access controls for sharing and review</li>
-              <li>• A dependable place to keep work moving forward</li>
+              <li>â€¢ One workspace for your most important files</li>
+              <li>â€¢ Clear access controls for sharing and review</li>
+              <li>â€¢ A dependable place to keep work moving forward</li>
             </ul>
           </div>
         </motion.section>
 
-        <motion.section initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.55 }} className="flex-1 rounded-[28px] border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+        <motion.section
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.55 }}
+          className="flex-1 rounded-[28px] border border-stone-200 bg-white p-6 shadow-sm sm:p-8"
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">Create account</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">
+                Create account
+              </p>
               <h2 className="mt-2 text-3xl font-semibold text-stone-900">Join CloudVault</h2>
             </div>
             <div className="rounded-2xl bg-[#f1e4d4] p-2 text-[#8c3d3d]">
@@ -157,7 +175,10 @@ function Register() {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-stone-700">
+              <label
+                htmlFor="confirmPassword"
+                className="mb-2 block text-sm font-medium text-stone-700"
+              >
                 Confirm password
               </label>
               <input
@@ -184,8 +205,11 @@ function Register() {
           </form>
 
           <p className="mt-6 text-sm text-stone-600">
-            Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-[#8c3d3d] transition hover:text-[#6f2d2d]">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-semibold text-[#8c3d3d] transition hover:text-[#6f2d2d]"
+            >
               Sign in
             </Link>
           </p>

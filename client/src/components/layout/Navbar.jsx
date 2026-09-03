@@ -5,10 +5,7 @@ function Navbar() {
   return (
     <nav className="fixed top-0 left-0 w-full z-50 border-b border-gray-200/50 bg-white/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-5">
-        <Link
-          to="/"
-          className="flex items-center gap-2 text-2xl font-bold text-blue-600"
-        >
+        <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-blue-600">
           <Cloud size={34} />
           CloudVault
         </Link>

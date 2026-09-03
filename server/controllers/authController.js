@@ -1,119 +1,258 @@
-const User = require("../models/User");
+﻿const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const RefreshToken = require("../models/RefreshToken");
+const env = require("../config/env");
+const logger = require("../config/logger");
+const AppError = require("../utils/AppError");
+const { sendPasswordResetEmail } = require("../services/emailService");
+const {
+  REFRESH_COOKIE,
+  createAccessToken,
+  hashToken,
+  issueRefreshToken,
+  setRefreshCookie,
+  clearRefreshCookie,
+} = require("../services/tokenService");
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+const SALT_ROUNDS = 12;
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCK_DURATION_MS = 15 * 60 * 1000;
+const RESET_TOKEN_DURATION_MS = 15 * 60 * 1000;
+
+const serializeUser = (user) => ({
+  id: user._id,
+  fullName: user.fullName,
+  email: user.email,
+  avatar: user.avatar,
+  storageUsed: user.storageUsed,
+  storageLimit: user.storageLimit,
+  totalFiles: user.totalFiles,
+});
+
+const authenticateResponse = async (user, req, res) => {
+  const refreshToken = await issueRefreshToken(user._id, req);
+  setRefreshCookie(res, refreshToken);
+  return {
+    accessToken: createAccessToken(user._id),
+    user: serializeUser(user),
+  };
 };
 
-const registerUser = async (req, res) => {
+const invalidCredentials = (res) =>
+  res.status(401).json({
+    success: false,
+    message: "Invalid email or password.",
+  });
+
+const registerUser = async (req, res, next) => {
   try {
     const { fullName, email, password } = req.body;
-
-    if (!fullName || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required.",
-      });
-    }
-
-    const existingUser = await User.findOne({
-      email: email.toLowerCase(),
-    });
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedName = String(fullName || "CloudVault User").trim();
+    const existingUser = await User.exists({ email: normalizedEmail });
 
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "Email already exists.",
-      });
+      throw new AppError("An account with that email already exists.", 409);
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = await User.create({
-      fullName,
-      email: email.toLowerCase(),
-      password: hashedPassword,
+      fullName: normalizedName,
+      email: normalizedEmail,
+      password: await bcrypt.hash(password, SALT_ROUNDS),
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Registration successful.",
-      token: generateToken(user._id),
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-      },
-    });
+    const session = await authenticateResponse(user, req, res);
+    logger.info({ event: "registration_success", userId: user._id }, "User registered");
+    res.status(201).json({ success: true, message: "Registration successful.", ...session });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
+    next(error);
   }
 };
 
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    const user = await User.findOne({ email }).select("+password +loginAttempts +lockUntil");
 
-    const user = await User.findOne({
-      email: email.toLowerCase(),
-    }).select("+password");
+    if (!user) return invalidCredentials(res);
 
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid Email or Password",
-      });
+    if (user.lockUntil && user.lockUntil > new Date()) {
+      logger.warn({ event: "login_locked", userId: user._id }, "Locked account login attempted");
+      return invalidCredentials(res);
     }
 
-    const match = await bcrypt.compare(password, user.password);
+    const passwordMatches = await bcrypt.compare(password, user.password);
+    if (!passwordMatches) {
+      const nextAttempt = user.loginAttempts + 1;
+      user.loginAttempts = nextAttempt;
+      if (nextAttempt >= MAX_LOGIN_ATTEMPTS) {
+        user.lockUntil = new Date(Date.now() + LOCK_DURATION_MS);
+        user.loginAttempts = 0;
+        logger.warn({ event: "account_locked", userId: user._id }, "Account temporarily locked");
+      }
+      await user.save({ validateBeforeSave: false });
+      logger.warn({ event: "login_failure", userId: user._id }, "Invalid login attempt");
+      return invalidCredentials(res);
+    }
 
-    if (!match) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid Email or Password",
-      });
+    user.loginAttempts = 0;
+    user.lockUntil = null;
+    await user.save({ validateBeforeSave: false });
+    const session = await authenticateResponse(user, req, res);
+    logger.info({ event: "login_success", userId: user._id }, "User authenticated");
+    res.status(200).json({ success: true, message: "Login successful.", ...session });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const refreshAccessToken = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies[REFRESH_COOKIE];
+    if (!refreshToken) throw new AppError("Session expired. Please sign in again.", 401);
+
+    const session = await RefreshToken.findOneAndDelete({
+      tokenHash: hashToken(refreshToken),
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!session) {
+      clearRefreshCookie(res);
+      throw new AppError("Session expired. Please sign in again.", 401);
+    }
+
+    const user = await User.findById(session.user);
+    if (!user) {
+      clearRefreshCookie(res);
+      throw new AppError("Session expired. Please sign in again.", 401);
+    }
+
+    const response = await authenticateResponse(user, req, res);
+    logger.info({ event: "session_refreshed", userId: user._id }, "Session refreshed");
+    res.status(200).json({ success: true, ...response });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const logoutUser = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies[REFRESH_COOKIE];
+    if (refreshToken) await RefreshToken.deleteOne({ tokenHash: hashToken(refreshToken) });
+    clearRefreshCookie(res);
+    logger.info({ event: "logout" }, "Session ended");
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail }).select(
+      "+passwordResetTokenHash +passwordResetExpiresAt"
+    );
+
+    if (user) {
+      const token = crypto.randomBytes(32).toString("hex");
+      user.passwordResetTokenHash = hashToken(token);
+      user.passwordResetExpiresAt = new Date(Date.now() + RESET_TOKEN_DURATION_MS);
+      await user.save({ validateBeforeSave: false });
+
+      const resetUrl = new URL(`/reset-password/${token}`, env.FRONTEND_URL);
+
+      try {
+        await sendPasswordResetEmail({ email: user.email, resetUrl: resetUrl.toString() });
+        logger.info({ event: "password_reset_requested", userId: user._id }, "Password reset requested");
+      } catch (emailError) {
+        user.passwordResetTokenHash = null;
+        user.passwordResetExpiresAt = null;
+        await user.save({ validateBeforeSave: false });
+        logger.error(
+          { err: emailError, event: "password_reset_email_failed", userId: user._id },
+          "Password reset email failed"
+        );
+      }
     }
 
     res.status(200).json({
       success: true,
-      message: "Login successful.",
-      token: generateToken(user._id),
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        storageUsed: user.storageUsed,
-        storageLimit: user.storageLimit,
-        totalFiles: user.totalFiles,
-      },
+      message: "If an account exists for this email, a password reset link has been sent.",
     });
   } catch (error) {
-    console.error(error);
+    next(error);
+  }
+};
 
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
+const resetPassword = async (req, res, next) => {
+  try {
+    const token = (req.body?.token || req.params?.token || "").trim();
+    const { password } = req.body;
+
+    if (!token) {
+      throw new AppError("The password reset link is invalid or has expired.", 400);
+    }
+
+    const user = await User.findOne({
+      passwordResetTokenHash: hashToken(token),
+      passwordResetExpiresAt: { $gt: new Date() },
+    }).select("+passwordResetTokenHash +passwordResetExpiresAt");
+
+    if (!user) {
+      throw new AppError("The password reset link is invalid or has expired.", 400);
+    }
+
+    user.password = await bcrypt.hash(password, SALT_ROUNDS);
+    user.passwordResetTokenHash = null;
+    user.passwordResetExpiresAt = null;
+    user.loginAttempts = 0;
+    user.lockUntil = null;
+    await user.save();
+    await RefreshToken.deleteMany({ user: user._id });
+    clearRefreshCookie(res);
+    logger.info({ event: "password_reset_completed", userId: user._id }, "Password reset completed");
+    res.status(200).json({ success: true, message: "Password reset successful. Please sign in." });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, password } = req.body;
+    const user = await User.findById(req.user._id).select("+password");
+
+    if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+      throw new AppError("Current password is incorrect.", 400);
+    }
+
+    user.password = await bcrypt.hash(password, SALT_ROUNDS);
+    user.loginAttempts = 0;
+    user.lockUntil = null;
+    await user.save({ validateBeforeSave: false });
+    await RefreshToken.deleteMany({ user: user._id });
+    const session = await authenticateResponse(user, req, res);
+    logger.info({ event: "password_changed", userId: user._id }, "Password changed");
+    res.status(200).json({ success: true, message: "Password changed successfully.", ...session });
+  } catch (error) {
+    next(error);
   }
 };
 
 const getCurrentUser = async (req, res) => {
-  res.status(200).json({
-    success: true,
-    user: req.user,
-  });
+  res.status(200).json({ success: true, user: serializeUser(req.user) });
 };
 
 module.exports = {
   registerUser,
   loginUser,
+  refreshAccessToken,
+  logoutUser,
   getCurrentUser,
+  forgotPassword,
+  resetPassword,
+  changePassword,
 };

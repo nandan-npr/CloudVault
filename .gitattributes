@@ -1,0 +1,5 @@
+/.env export-ignore
+/server/.env export-ignore
+/node_modules export-ignore
+/client/node_modules export-ignore
+/.git export-ignore

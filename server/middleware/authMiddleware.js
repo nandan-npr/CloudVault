@@ -1,46 +1,34 @@
-const jwt = require("jsonwebtoken");
+﻿const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const env = require("../config/env");
 
 const protect = async (req, res, next) => {
   try {
-    let token;
-
-    // Check Authorization Header
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    }
+    const authorization = req.headers.authorization;
+    const token = authorization?.startsWith("Bearer ") ? authorization.slice(7) : null;
 
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Access denied. No token provided.",
-      });
+      return res.status(401).json({ success: false, message: "Authentication is required." });
     }
 
-    // Verify JWT
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET, {
+      issuer: "cloudvault-api",
+      audience: "cloudvault-client",
+    });
 
-    // Find User
-    const user = await User.findById(decoded.id).select("-password");
+    if (decoded.type !== "access" || !decoded.sub) {
+      return res.status(401).json({ success: false, message: "Authentication is required." });
+    }
 
+    const user = await User.findById(decoded.sub).select("-password -__v");
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User not found.",
-      });
+      return res.status(401).json({ success: false, message: "Authentication is required." });
     }
 
     req.user = user;
-
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token.",
-    });
+    return next();
+  } catch {
+    return res.status(401).json({ success: false, message: "Authentication is required." });
   }
 };
 

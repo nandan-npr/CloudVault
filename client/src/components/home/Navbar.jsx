@@ -57,32 +57,56 @@ function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <Link to="/login" className="rounded-full px-5 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
+          <Link
+            to="/login"
+            className="rounded-full px-5 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
+          >
             Login
           </Link>
-          <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-[#2f1d1d] px-5 py-2.5 text-sm font-semibold text-[#f7efe6] transition hover:bg-[#3f2626]">
+          <Link
+            to="/register"
+            className="inline-flex items-center gap-2 rounded-full bg-[#2f1d1d] px-5 py-2.5 text-sm font-semibold text-[#f7efe6] transition hover:bg-[#3f2626]"
+          >
             Create account
             <ArrowRight size={16} />
           </Link>
         </div>
 
-        <button onClick={() => setMobileMenu(!mobileMenu)} className="rounded-full p-2 text-stone-700 lg:hidden">
+        <button
+          onClick={() => setMobileMenu(!mobileMenu)}
+          className="rounded-full p-2 text-stone-700 lg:hidden"
+        >
           {mobileMenu ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
       {mobileMenu && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="border-t border-stone-200 bg-[#f8f3ea]/95 px-6 py-5 lg:hidden">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="border-t border-stone-200 bg-[#f8f3ea]/95 px-6 py-5 lg:hidden"
+        >
           <div className="space-y-2">
             {links.map((item) => (
-              <a key={item.title} href={item.href} onClick={() => setMobileMenu(false)} className="block rounded-2xl px-4 py-3 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
+              <a
+                key={item.title}
+                href={item.href}
+                onClick={() => setMobileMenu(false)}
+                className="block rounded-2xl px-4 py-3 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
+              >
                 {item.title}
               </a>
             ))}
-            <Link to="/login" className="mt-3 block rounded-2xl border border-stone-200 px-4 py-3 text-center text-sm font-semibold text-stone-800">
+            <Link
+              to="/login"
+              className="mt-3 block rounded-2xl border border-stone-200 px-4 py-3 text-center text-sm font-semibold text-stone-800"
+            >
               Login
             </Link>
-            <Link to="/register" className="mt-2 block rounded-2xl bg-[#2f1d1d] px-4 py-3 text-center text-sm font-semibold text-[#f7efe6]">
+            <Link
+              to="/register"
+              className="mt-2 block rounded-2xl bg-[#2f1d1d] px-4 py-3 text-center text-sm font-semibold text-[#f7efe6]"
+            >
               Create account
             </Link>
           </div>

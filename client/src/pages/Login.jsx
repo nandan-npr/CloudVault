@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Lock, ShieldCheck, Sparkles } from "lucide-react";
@@ -27,10 +27,8 @@ function Login() {
         password: formData.password,
       });
 
-      const { token, user } = response.data;
-      setAuthToken(token);
-      localStorage.setItem("cloudvault_token", token);
-      localStorage.setItem("cloudvault_user", JSON.stringify(user));
+      const { accessToken } = response.data;
+      setAuthToken(accessToken);
 
       toast.success("Signed in successfully.");
       navigate("/dashboard");
@@ -44,7 +42,12 @@ function Login() {
   return (
     <main className="min-h-screen bg-[#faf7f2] px-6 py-10 text-[#1f1a17] sm:px-8 lg:px-10">
       <div className="mx-auto flex max-w-7xl flex-col gap-8 rounded-[36px] border border-stone-200 bg-white/80 p-4 shadow-[0_20px_80px_rgba(45,32,20,0.05)] backdrop-blur lg:flex-row lg:p-8">
-        <motion.section initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="flex-1 rounded-[28px] bg-[#f8f3ea] p-8 lg:p-10">
+        <motion.section
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex-1 rounded-[28px] bg-[#f8f3ea] p-8 lg:p-10"
+        >
           <div className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white/80 px-4 py-2 text-sm font-medium text-stone-700">
             <Sparkles size={16} className="text-[#8c3d3d]" />
             Welcome back to CloudVault
@@ -55,7 +58,8 @@ function Login() {
           </h1>
 
           <p className="mt-5 max-w-xl text-lg leading-8 text-stone-600">
-            Continue organizing your files, sharing work securely, and keeping every project in one calm workspace.
+            Continue organizing your files, sharing work securely, and keeping every project in one
+            calm workspace.
           </p>
 
           <div className="mt-8 space-y-3">
@@ -64,7 +68,10 @@ function Login() {
               "Simple sharing for clients and teammates",
               "A polished workspace that stays easy to use",
             ].map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white/80 px-4 py-3 text-sm text-stone-700">
+              <div
+                key={item}
+                className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white/80 px-4 py-3 text-sm text-stone-700"
+              >
                 <ShieldCheck size={16} className="text-[#8c3d3d]" />
                 {item}
               </div>
@@ -72,17 +79,23 @@ function Login() {
           </div>
         </motion.section>
 
-        <motion.section initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.55 }} className="flex-1 rounded-[28px] border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+        <motion.section
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.55 }}
+          className="flex-1 rounded-[28px] border border-stone-200 bg-white p-6 shadow-sm sm:p-8"
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">Sign in</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">
+                Sign in
+              </p>
               <h2 className="mt-2 text-3xl font-semibold text-stone-900">Access your workspace</h2>
             </div>
             <div className="rounded-2xl bg-[#f1e4d4] p-2 text-[#8c3d3d]">
               <Lock size={18} />
             </div>
           </div>
-
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div>
               <label htmlFor="email" className="mb-2 block text-sm font-medium text-stone-700">
@@ -136,10 +149,20 @@ function Login() {
               <ArrowRight size={16} />
             </button>
           </form>
-
           <p className="mt-6 text-sm text-stone-600">
-            New here?{' '}
-            <Link to="/register" className="font-semibold text-[#8c3d3d] transition hover:text-[#6f2d2d]">
+            <Link
+              to="/forgot-password"
+              className="font-semibold text-[#8c3d3d] transition hover:text-[#6f2d2d]"
+            >
+              Forgot Password?
+            </Link>
+          </p>
+          <p className="mt-3 text-sm text-stone-600">
+            New here?{" "}
+            <Link
+              to="/register"
+              className="font-semibold text-[#8c3d3d] transition hover:text-[#6f2d2d]"
+            >
               Create an account
             </Link>
           </p>
