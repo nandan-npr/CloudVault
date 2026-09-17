@@ -31,6 +31,9 @@ const envSchema = z
     SMTP_USER: z.string().min(1, "SMTP_USER is required").optional(),
     SMTP_PASS: z.string().min(1, "SMTP_PASS is required").optional(),
     SMTP_FROM: z.string().email("SMTP_FROM must be a valid email address").optional(),
+    AI_API_KEY: z.string().min(1, "AI_API_KEY is required").optional(),
+    AI_MODEL: z.string().trim().min(1).optional(),
+    AI_BASE_URL: z.string().url("AI_BASE_URL must be a valid URL").optional(),
   })
   .transform((value) => {
     const mongoUri = value.MONGO_URI || value.MONGODB_URI || (value.NODE_ENV === "production" ? undefined : "mongodb://localhost:27017/cloudvault");

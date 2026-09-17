@@ -30,28 +30,28 @@ const audiences = [
 
 function Testimonials() {
   return (
-    <section className="px-6 py-28 sm:px-8 lg:px-10">
+    <section className="px-6 py-24 sm:px-8 lg:px-10">
       <div className="mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.6 }}
-          className="max-w-3xl"
+          className="text-center"
         >
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--cv-brand)]">
             Who it is for
           </p>
-          <h2 className="mt-4 text-4xl font-semibold tracking-[-0.03em] text-stone-900 sm:text-5xl">
-            Designed for the people who live inside documents, deadlines, and shared work.
+          <h2 className="mt-4 text-4xl font-semibold tracking-[-0.03em] text-[var(--cv-text)] sm:text-5xl">
+            Built for anyone who works with files.
           </h2>
-          <p className="mt-5 text-lg leading-8 text-stone-600">
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-[var(--cv-text-muted)]">
             CloudVault is useful wherever files matter: study, client work, freelance delivery, or
-            day-to-day collaboration across a team.
+            day-to-day collaboration.
           </p>
         </motion.div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {audiences.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -59,15 +59,15 @@ function Testimonials() {
                 key={item.title}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.55, delay: index * 0.05 }}
-                className="rounded-[28px] border border-stone-200 bg-white/80 p-8 shadow-[0_15px_50px_rgba(45,32,20,0.05)]"
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ duration: 0.5, delay: index * 0.05 }}
+                className="rounded-[24px] border border-[var(--cv-border)] bg-[var(--cv-surface-card)] p-7 shadow-[0_4px_24px_var(--cv-shadow)]"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e4d4] text-[#8c3d3d]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--muted)] text-[var(--cv-brand)]">
                   <Icon size={20} />
                 </div>
-                <h3 className="mt-6 text-xl font-semibold text-stone-900">{item.title}</h3>
-                <p className="mt-3 text-base leading-7 text-stone-600">{item.description}</p>
+                <h3 className="mt-5 text-lg font-semibold text-[var(--cv-text)]">{item.title}</h3>
+                <p className="mt-2.5 text-sm leading-7 text-[var(--cv-text-muted)]">{item.description}</p>
               </motion.article>
             );
           })}

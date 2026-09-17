@@ -54,6 +54,21 @@ const fileSchema = new mongoose.Schema(
       default: Date.now,
       index: true,
     },
+    folderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Folder",
+      default: null,
+      index: true,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
     extension: {
       type: String,
       maxlength: 16,
@@ -70,6 +85,8 @@ const fileSchema = new mongoose.Schema(
 
 fileSchema.index({ userId: 1, uploadedAt: -1 });
 fileSchema.index({ owner: 1, uploadedAt: -1 });
+fileSchema.index({ userId: 1, folderId: 1, isDeleted: 1 });
+fileSchema.index({ owner: 1, folderId: 1, isDeleted: 1 });
 
 fileSchema.pre("save", function syncUserAlias(next) {
   if (!this.userId && this.owner) this.userId = this.owner;

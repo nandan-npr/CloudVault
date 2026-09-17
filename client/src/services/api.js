@@ -1,4 +1,4 @@
-﻿import axios from "axios";
+import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "/api" : "http://localhost:5000/api"),
@@ -64,6 +64,7 @@ api.interceptors.response.use(
   }
 );
 
+// Auth APIs
 export const loginUser = (data) => api.post("/auth/login", data, { skipAuthRefresh: true });
 export const registerUser = (data) => api.post("/auth/register", data, { skipAuthRefresh: true });
 export const logoutUser = () => api.post("/auth/logout", undefined, { skipAuthRefresh: true });
@@ -72,12 +73,38 @@ export const requestPasswordReset = (data) =>
   api.post("/auth/forgot-password", data, { skipAuthRefresh: true });
 export const resetPassword = (data) =>
   api.post("/auth/reset-password", data, { skipAuthRefresh: true });
+export const changePassword = (data) => api.post("/auth/change-password", data);
 
+// Profile APIs
+export const getProfile = () => api.get("/auth/profile");
+export const updateProfile = (data) => api.put("/auth/profile", data);
+
+// File APIs
 export const uploadFile = (formData, onUploadProgress) =>
   api.post("/files", formData, { onUploadProgress });
 export const listFiles = (params) => api.get("/files", { params });
+export const getFileStats = () => api.get("/files/stats");
 export const getFileMetadata = (id) => api.get(`/files/${id}`);
 export const deleteFile = (id) => api.delete(`/files/${id}`);
+export const restoreFile = (id) => api.post(`/files/${id}/restore`);
+export const permanentlyDeleteFile = (id) => api.delete(`/files/${id}/permanent`);
+export const moveFiles = (data) => api.post("/files/move", data);
+export const chatWithFile = (fileId, data) => api.post(`/ai/files/${fileId}/chat`, data);
 export const downloadFile = (id) => api.get(`/files/${id}/download`, { responseType: "blob" });
+export const previewFile = (id) => api.get(`/files/${id}/preview`, { responseType: "blob" });
+
+// Folder APIs
+export const createFolder = (data) => api.post("/folders", data);
+export const listFolders = (parent) =>
+  api.get("/folders", { params: parent ? { parent } : { parent: "root" } });
+export const getFolderTree = () => api.get("/folders/tree");
+export const getFolder = (id) => api.get(`/folders/${id}`);
+export const renameFolder = (id, data) => api.patch(`/folders/${id}`, data);
+export const moveFolder = (id, data) => api.post(`/folders/${id}/move`, data);
+export const deleteFolder = (id) => api.delete(`/folders/${id}`);
+export const restoreFolder = (id) => api.post(`/folders/${id}/restore`);
+export const permanentlyDeleteFolder = (id) => api.post(`/folders/${id}/permanent`);
+export const listRecycleBin = () => api.get("/folders/recycle-bin");
+export const emptyRecycleBin = () => api.post("/folders/recycle-bin/empty");
 
 export default api;

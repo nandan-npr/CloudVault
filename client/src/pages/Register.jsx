@@ -1,7 +1,7 @@
 ﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Eye, EyeOff, Sparkles, UserRoundPlus } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Sparkles, UserRoundPlus } from "lucide-react";
 import { toast } from "sonner";
 
 import { registerUser, setAuthToken } from "../services/api";
@@ -63,30 +63,39 @@ function Register() {
   };
 
   return (
-    <main className="min-h-screen bg-[#faf7f2] px-6 py-10 text-[#1f1a17] sm:px-8 lg:px-10">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 rounded-[36px] border border-stone-200 bg-white/80 p-4 shadow-[0_20px_80px_rgba(45,32,20,0.05)] backdrop-blur lg:flex-row lg:p-8">
+    <main className="min-h-screen bg-[var(--background)] px-6 py-10 text-[var(--cv-text)] sm:px-8 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--cv-border)] bg-[var(--cv-surface-card)] px-4 py-2 text-sm font-medium text-[var(--cv-text-muted)] transition hover:text-[var(--cv-text)]"
+        >
+          <ArrowLeft size={15} />
+          Back to Home
+        </Link>
+      </div>
+      <div className="mx-auto mt-6 flex max-w-7xl flex-col gap-8 rounded-[36px] border border-[var(--cv-border)] bg-[var(--cv-surface-card)] p-4 shadow-[0_20px_80px_var(--cv-shadow)] backdrop-blur lg:flex-row lg:p-8">
         <motion.section
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex-1 rounded-[28px] bg-[#f8f3ea] p-8 lg:p-10"
+          className="flex-1 rounded-[28px] bg-[var(--cv-surface)] p-8 lg:p-10"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white/80 px-4 py-2 text-sm font-medium text-stone-700">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--cv-border)] bg-[var(--cv-surface-card)] px-4 py-2 text-sm font-medium text-[var(--cv-text-muted)]">
             <Sparkles size={16} className="text-[#8c3d3d]" />
             Start with a calmer way to manage files
           </div>
 
-          <h1 className="mt-6 text-4xl font-semibold tracking-[-0.03em] text-stone-900 sm:text-5xl">
+          <h1 className="mt-6 text-4xl font-semibold tracking-[-0.03em] text-[var(--cv-text)] sm:text-5xl">
             Create an account and bring structure to your work.
           </h1>
 
-          <p className="mt-5 max-w-xl text-lg leading-8 text-stone-600">
+          <p className="mt-5 max-w-xl text-lg leading-8 text-[var(--cv-text-muted)]">
             CloudVault helps you keep important documents organized, easy to share, and ready
             whenever you need them.
           </p>
 
-          <div className="mt-8 rounded-[24px] border border-stone-200 bg-white/80 p-5 text-sm text-stone-700">
-            <p className="font-semibold text-stone-900">What you get</p>
+          <div className="mt-8 rounded-[24px] border border-[var(--cv-border)] bg-[var(--cv-surface-card)] p-5 text-sm text-[var(--cv-text-muted)]">
+            <p className="font-semibold text-[var(--cv-text)]">What you get</p>
             <ul className="mt-3 space-y-2">
               <li>â€¢ One workspace for your most important files</li>
               <li>â€¢ Clear access controls for sharing and review</li>
@@ -99,23 +108,23 @@ function Register() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.55 }}
-          className="flex-1 rounded-[28px] border border-stone-200 bg-white p-6 shadow-sm sm:p-8"
+          className="flex-1 rounded-[28px] border border-[var(--cv-border)] bg-[var(--cv-surface-card)] p-6 shadow-sm sm:p-8"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--cv-text-muted)]">
                 Create account
               </p>
-              <h2 className="mt-2 text-3xl font-semibold text-stone-900">Join CloudVault</h2>
+              <h2 className="mt-2 text-3xl font-semibold text-[var(--cv-text)]">Join CloudVault</h2>
             </div>
-            <div className="rounded-2xl bg-[#f1e4d4] p-2 text-[#8c3d3d]">
+            <div className="rounded-2xl bg-[var(--muted)] p-2 text-[#8c3d3d]">
               <UserRoundPlus size={18} />
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div>
-              <label htmlFor="fullName" className="mb-2 block text-sm font-medium text-stone-700">
+              <label htmlFor="fullName" className="mb-2 block text-sm font-medium text-[var(--cv-text-muted)]">
                 Full name
               </label>
               <input
@@ -126,13 +135,13 @@ function Register() {
                 required
                 value={formData.fullName}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-800 outline-none transition focus:border-[#8c3d3d] focus:bg-white"
+                className="w-full rounded-2xl border border-[var(--cv-border)] bg-[var(--cv-surface)] px-4 py-3 text-sm text-[var(--cv-text)] outline-none transition focus:border-[#8c3d3d] focus:bg-[var(--cv-surface-card)]"
                 placeholder="Jordan Lee"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="mb-2 block text-sm font-medium text-stone-700">
+              <label htmlFor="email" className="mb-2 block text-sm font-medium text-[var(--cv-text-muted)]">
                 Email address
               </label>
               <input
@@ -143,13 +152,13 @@ function Register() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-800 outline-none transition focus:border-[#8c3d3d] focus:bg-white"
+                className="w-full rounded-2xl border border-[var(--cv-border)] bg-[var(--cv-surface)] px-4 py-3 text-sm text-[var(--cv-text)] outline-none transition focus:border-[#8c3d3d] focus:bg-[var(--cv-surface-card)]"
                 placeholder="you@company.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-2 block text-sm font-medium text-stone-700">
+              <label htmlFor="password" className="mb-2 block text-sm font-medium text-[var(--cv-text-muted)]">
                 Password
               </label>
               <div className="relative">
@@ -161,13 +170,13 @@ function Register() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 pr-12 text-sm text-stone-800 outline-none transition focus:border-[#8c3d3d] focus:bg-white"
+                  className="w-full rounded-2xl border border-[var(--cv-border)] bg-[var(--cv-surface)] px-4 py-3 pr-12 text-sm text-[var(--cv-text)] outline-none transition focus:border-[#8c3d3d] focus:bg-[var(--cv-surface-card)]"
                   placeholder="Create a password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute inset-y-0 right-3 flex items-center text-stone-500"
+                  className="absolute inset-y-0 right-3 flex items-center text-[var(--cv-text-muted)]"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -177,7 +186,7 @@ function Register() {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="mb-2 block text-sm font-medium text-stone-700"
+                className="mb-2 block text-sm font-medium text-[var(--cv-text-muted)]"
               >
                 Confirm password
               </label>
@@ -189,7 +198,7 @@ function Register() {
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-800 outline-none transition focus:border-[#8c3d3d] focus:bg-white"
+                className="w-full rounded-2xl border border-[var(--cv-border)] bg-[var(--cv-surface)] px-4 py-3 text-sm text-[var(--cv-text)] outline-none transition focus:border-[#8c3d3d] focus:bg-[var(--cv-surface-card)]"
                 placeholder="Confirm your password"
               />
             </div>
@@ -204,7 +213,7 @@ function Register() {
             </button>
           </form>
 
-          <p className="mt-6 text-sm text-stone-600">
+          <p className="mt-6 text-sm text-[var(--cv-text-muted)]">
             Already have an account?{" "}
             <Link
               to="/login"

@@ -21,5 +21,6 @@ const loginLimiter = createAuthLimiter(15 * 60 * 1000, 10, "login_rate_limit");
 const registerLimiter = createAuthLimiter(60 * 60 * 1000, 5, "register_rate_limit");
 const passwordResetLimiter = createAuthLimiter(60 * 60 * 1000, 5, "password_reset_rate_limit");
 const uploadLimiter = createAuthLimiter(15 * 60 * 1000, 60, "upload_rate_limit");
+const aiLimiter = createAuthLimiter(15 * 60 * 1000, 30, "ai_rate_limit");
 
-module.exports = { loginLimiter, registerLimiter, passwordResetLimiter, uploadLimiter };
+module.exports = { loginLimiter, registerLimiter, passwordResetLimiter, uploadLimiter, aiLimiter };

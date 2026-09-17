@@ -1,113 +1,109 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, FileText, FolderOpen, Search, UploadCloud } from "lucide-react";
+import { CheckCircle2, FileText, FolderOpen, UploadCloud } from "lucide-react";
 
 const workflow = [
   {
-    title: "Create a workspace",
-    description: "Gather the files, folders, and documents that belong together.",
+    step: "01",
+    title: "Create your account",
+    description: "Sign up in seconds. Your private workspace is ready immediately.",
   },
   {
-    title: "Upload and organize",
-    description: "Drop in documents, preview them, and place them where your team will find them.",
+    step: "02",
+    title: "Upload your files",
+    description: "Drag and drop or select files from your device. PDF, DOC, DOCX, images and more.",
   },
   {
-    title: "Share and access anywhere",
-    description: "Keep the right people connected while your files stay available on every device.",
+    step: "03",
+    title: "Access from anywhere",
+    description: "Preview, download, and manage your files from any device at any time.",
   },
 ];
 
 function DashboardPreview() {
   return (
-    <section id="workflow" className="px-6 py-28 sm:px-8 lg:px-10">
-      <div className="mx-auto max-w-7xl rounded-[36px] border border-stone-200 bg-white/80 p-8 shadow-[0_20px_80px_rgba(45,32,20,0.05)] lg:p-10">
-        <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+    <section id="workflow" className="px-6 py-24 sm:px-8 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+          {/* Left — text */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6 }}
           >
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--cv-brand)]">
               How it works
             </p>
-            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.03em] text-stone-900 sm:text-5xl">
-              A simple flow that feels natural from the first upload.
+            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.03em] text-[var(--cv-text)] sm:text-5xl">
+              A simple flow from upload to access.
             </h2>
-            <p className="mt-5 text-lg leading-8 text-stone-600">
-              CloudVault keeps the experience straightforward so planning, sharing, and reviewing
-              files never feel like a chore.
+            <p className="mt-5 text-lg leading-8 text-[var(--cv-text-muted)]">
+              CloudVault keeps the experience straightforward so managing your files never feels
+              like a chore. Upload, organize, and access in three easy steps.
             </p>
+
+            <div className="mt-10 space-y-4">
+              {workflow.map((item) => (
+                <div
+                  key={item.step}
+                  className="flex items-start gap-4 rounded-[20px] border border-[var(--cv-border)] bg-[var(--cv-surface-card)] p-5"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--muted)] text-sm font-bold text-[var(--cv-brand)]">
+                    {item.step}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-[var(--cv-text)]">{item.title}</p>
+                    <p className="mt-1 text-sm leading-6 text-[var(--cv-text-muted)]">{item.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </motion.div>
 
+          {/* Right — feature summary cards (no fake UI/mockup) */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.65 }}
-            className="rounded-[28px] border border-stone-200 bg-[#f8f3ea] p-6"
+            className="grid gap-4 sm:grid-cols-2"
           >
-            <div className="rounded-[24px] border border-stone-200 bg-white p-4">
-              <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-stone-50 px-3 py-3">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-[#2f1d1d] p-2 text-[#f7efe6]">
-                    <FolderOpen size={16} />
+            {[
+              {
+                icon: UploadCloud,
+                title: "Upload",
+                description: "Drag and drop or click to upload. PDF, DOC, DOCX, XLS, images, and more — up to 50 MB per file.",
+              },
+              {
+                icon: FileText,
+                title: "Preview",
+                description: "Open PDFs and images directly in your browser. No downloads needed to confirm the right file.",
+              },
+              {
+                icon: FolderOpen,
+                title: "Organize",
+                description: "Search by name, filter by type, size, or date. Sort files exactly the way you work.",
+              },
+              {
+                icon: CheckCircle2,
+                title: "Manage",
+                description: "Download or delete files anytime. Track your storage usage and keep your workspace clean.",
+              },
+            ].map((card) => {
+              const Icon = card.icon;
+              return (
+                <div
+                  key={card.title}
+                  className="rounded-[20px] border border-[var(--cv-border)] bg-[var(--cv-surface)] p-5"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--cv-surface-card)] text-[var(--cv-brand)]">
+                    <Icon size={18} />
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-stone-800">Project workspace</p>
-                    <p className="text-sm text-stone-500">Shared with your team</p>
-                  </div>
+                  <h3 className="mt-4 font-semibold text-[var(--cv-text)]">{card.title}</h3>
+                  <p className="mt-1.5 text-sm leading-6 text-[var(--cv-text-muted)]">{card.description}</p>
                 </div>
-                <div className="rounded-full border border-stone-200 bg-white px-3 py-1 text-sm text-stone-600">
-                  Live
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-                  <div className="flex items-center gap-2 text-[#8c3d3d]">
-                    <UploadCloud size={16} />
-                    <span className="text-sm font-semibold">Upload</span>
-                  </div>
-                  <p className="mt-2 text-sm leading-7 text-stone-600">
-                    Bring files in from a laptop, tablet, or phone without friction.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-                  <div className="flex items-center gap-2 text-[#8c3d3d]">
-                    <FileText size={16} />
-                    <span className="text-sm font-semibold">Preview</span>
-                  </div>
-                  <p className="mt-2 text-sm leading-7 text-stone-600">
-                    Open documents directly so you can confirm the right file quickly.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4 space-y-3">
-                {workflow.map((step, index) => (
-                  <div
-                    key={step.title}
-                    className="flex items-start gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-3 py-3"
-                  >
-                    <div className="mt-0.5 rounded-full bg-[#2f1d1d] p-2 text-[#f7efe6]">
-                      <CheckCircle2 size={15} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-[#8c3d3d]">0{index + 1}</span>
-                        <h3 className="text-sm font-semibold text-stone-800">{step.title}</h3>
-                      </div>
-                      <p className="mt-1 text-sm leading-7 text-stone-600">{step.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 flex items-center gap-2 rounded-2xl border border-stone-200 bg-[#fcfaf6] px-3 py-3 text-sm text-stone-600">
-                <Search size={16} className="text-[#8c3d3d]" />
-                Search for a document, folder, or shared file in seconds.
-              </div>
-            </div>
+              );
+            })}
           </motion.div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-﻿const express = require("express");
+const express = require("express");
 const {
   registerUser,
   loginUser,
@@ -8,6 +8,8 @@ const {
   forgotPassword,
   resetPassword,
   changePassword,
+  getProfile,
+  updateProfile,
 } = require("../controllers/authController");
 const protect = require("../middleware/authMiddleware");
 const validateRequest = require("../middleware/validateRequest");
@@ -32,5 +34,7 @@ router.post("/forgot-password", passwordResetLimiter, validateRequest(forgotPass
 router.post("/reset-password/:token", validateRequest(resetPasswordSchema), resetPassword);
 router.post("/reset-password", validateRequest(resetPasswordSchema), resetPassword);
 router.post("/change-password", protect, validateRequest(changePasswordSchema), changePassword);
+router.get("/profile", protect, getProfile);
+router.put("/profile", protect, updateProfile);
 
 module.exports = router;

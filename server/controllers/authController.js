@@ -1,4 +1,4 @@
-﻿const crypto = require("crypto");
+const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const RefreshToken = require("../models/RefreshToken");
@@ -28,6 +28,15 @@ const serializeUser = (user) => ({
   storageUsed: user.storageUsed,
   storageLimit: user.storageLimit,
   totalFiles: user.totalFiles,
+  createdAt: user.createdAt,
+  isVerified: user.isVerified,
+  // Extended profile fields
+  dateOfBirth: user.dateOfBirth || null,
+  phone: user.phone || "",
+  gender: user.gender || "",
+  location: user.location || "",
+  bio: user.bio || "",
+  theme: user.theme || "system",
 });
 
 const authenticateResponse = async (user, req, res) => {
@@ -246,6 +255,57 @@ const getCurrentUser = async (req, res) => {
   res.status(200).json({ success: true, user: serializeUser(req.user) });
 };
 
+const getProfile = async (req, res, next) => {
+  try {
+    // Re-fetch to ensure all new fields are populated (in case middleware user is from old session)
+    const user = await User.findById(req.user._id).select("-password -__v -loginAttempts -lockUntil -passwordResetTokenHash -passwordResetExpiresAt");
+    if (!user) throw new AppError("User not found.", 404);
+    res.status(200).json({ success: true, user: serializeUser(user) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateProfile = async (req, res, next) => {
+  try {
+    const allowedFields = ["fullName", "dateOfBirth", "phone", "gender", "location", "bio", "theme"];
+    const updates = {};
+
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    }
+
+    // Validate fullName if provided
+    if (updates.fullName !== undefined) {
+      const name = String(updates.fullName).trim();
+      if (name.length < 3 || name.length > 50) {
+        throw new AppError("Full name must be between 3 and 50 characters.", 400);
+      }
+      updates.fullName = name;
+    }
+
+    // Validate theme if provided
+    if (updates.theme !== undefined && !["light", "dark", "system"].includes(updates.theme)) {
+      throw new AppError("Theme must be one of: light, dark, system.", 400);
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select("-password -__v -loginAttempts -lockUntil -passwordResetTokenHash -passwordResetExpiresAt");
+
+    if (!user) throw new AppError("User not found.", 404);
+
+    logger.info({ event: "profile_updated", userId: user._id }, "Profile updated");
+    res.status(200).json({ success: true, message: "Profile updated successfully.", user: serializeUser(user) });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -255,4 +315,6 @@ module.exports = {
   forgotPassword,
   resetPassword,
   changePassword,
+  getProfile,
+  updateProfile,
 };

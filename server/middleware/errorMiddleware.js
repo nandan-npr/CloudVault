@@ -1,4 +1,4 @@
-﻿const { ZodError } = require("zod");
+const { ZodError } = require("zod");
 const env = require("../config/env");
 const logger = require("../config/logger");
 
@@ -36,7 +36,8 @@ const errorHandler = (error, req, res, _next) => {
     statusCode = 400;
     message = "Invalid request data.";
     details = Object.values(error.errors).map((item) => item.message);
-  } else if (statusCode >= 500) {
+  } else if (statusCode >= 500 && statusCode !== 503) {
+    // 503 keeps its message so "AI is not configured" reaches the user clearly
     message = "Internal server error.";
     details = undefined;
   }

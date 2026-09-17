@@ -12,7 +12,7 @@ const ALLOWED_MIME = new Set([
 ]);
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
-function UploadZone({ onUploaded }) {
+function UploadZone({ onUploaded, folderId }) {
   const inputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -36,6 +36,7 @@ function UploadZone({ onUploaded }) {
     setProgress(0);
     const formData = new FormData();
     formData.append("files", file);
+    if (folderId) formData.append("folderId", folderId);
 
     try {
       const response = await uploadFile(formData, (progressEvent) => {

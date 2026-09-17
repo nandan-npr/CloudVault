@@ -11,6 +11,8 @@ const env = require("./config/env");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const fileRoutes = require("./routes/fileRoutes");
+const aiRoutes = require("./routes/aiRoutes");
+const folderRoutes = require("./routes/folderRoutes");
 const logger = require("./config/logger");
 const AppError = require("./utils/AppError");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
@@ -67,6 +69,8 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/files", fileRoutes);
+app.use("/api/folders", folderRoutes);
+app.use("/api/ai", aiRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
